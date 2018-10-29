@@ -27,17 +27,19 @@ type Writer struct {
 	NoEscapeHTML bool
 
 	// force quoting of numbers and booleans
-	QuoteBool   bool
-	QuoteInt    bool
-	QuoteInt8   bool
-	QuoteInt16  bool
-	QuoteInt32  bool
-	QuoteInt64  bool
-	QuoteUint   bool
-	QuoteUint8  bool
-	QuoteUint16 bool
-	QuoteUint32 bool
-	QuoteUint64 bool
+	QuoteBool    bool
+	QuoteInt     bool
+	QuoteInt8    bool
+	QuoteInt16   bool
+	QuoteInt32   bool
+	QuoteInt64   bool
+	QuoteUint    bool
+	QuoteUint8   bool
+	QuoteUint16  bool
+	QuoteUint32  bool
+	QuoteUint64  bool
+	QuoteFloat32 bool
+	QuoteFloat64 bool
 }
 
 // Size returns the size of the data that was written out.
@@ -289,6 +291,10 @@ func (w *Writer) Int64Str(n int64) {
 }
 
 func (w *Writer) Float32(n float32) {
+	if w.QuoteFloat32 {
+		w.Float32Str(n)
+		return
+	}
 	w.Buffer.EnsureSpace(20)
 	w.Buffer.Buf = strconv.AppendFloat(w.Buffer.Buf, float64(n), 'g', -1, 32)
 }
@@ -301,6 +307,10 @@ func (w *Writer) Float32Str(n float32) {
 }
 
 func (w *Writer) Float64(n float64) {
+	if w.QuoteFloat64 {
+		w.Float64Str(n)
+		return
+	}
 	w.Buffer.EnsureSpace(20)
 	w.Buffer.Buf = strconv.AppendFloat(w.Buffer.Buf, n, 'g', -1, 64)
 }
