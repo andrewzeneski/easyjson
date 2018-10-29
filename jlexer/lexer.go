@@ -39,7 +39,8 @@ type token struct {
 
 // Lexer is a JSON lexer: it iterates over JSON tokens in a byte slice.
 type Lexer struct {
-	Data []byte // Input data given to the lexer.
+	Data               []byte // Input data given to the lexer.
+	AllowQuotedNumbers bool   // Allow numbers to be quoted
 
 	start int   // Start of the current token.
 	pos   int   // Current unscanned position in the input stream.
@@ -685,6 +686,13 @@ func (r *Lexer) number() string {
 		r.FetchToken()
 	}
 	if !r.Ok() || r.token.kind != tokenNumber {
+		if r.AllowQuotedNumbers && r.Ok() && r.token.kind == tokenString {
+			ret := bytesToStr(r.token.byteValue)
+			if _, err := strconv.ParseFloat(ret, 64); err == nil {
+				r.consume()
+				return ret
+			}
+		}
 		r.errInvalidToken("number")
 		return ""
 	}
